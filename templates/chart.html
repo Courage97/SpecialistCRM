@@ -1,0 +1,223 @@
+{% load static  %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chart</title>
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        .chart-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            width: 100%;
+            padding: 20px;
+        }
+        .chart-wrapper {
+            width: 35%;
+            margin-bottom: 20px;
+            margin-left:180px;
+        }
+    </style>
+</head>
+<body>
+    <aside class="sidebar" id="sidebar">
+        <div class="logo-container">
+            <img src="https://i.pinimg.com/736x/34/14/03/341403d15bcffea3bb9c9ab1424e8420.jpg" alt="Hospital Logo">
+            <span>Specialist</span>
+        </div>
+        {% comment %} Always visible item on the aside bar without authentication {% endcomment %}
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a href="{% url 'index' %}" class="nav-link">
+                    <i class="fas fa-home"></i>
+                    <span>Home</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'features' %}" class="nav-link">
+                    <i class="fas fa-cogs"></i>
+                    <span>Features</span>
+                </a>
+            </li>
+
+            {% if user.is_authenticated %}
+                <li class="nav-item">
+                    <a href="{% url 'dashboard' %}" class="nav-link">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'chart' %}" class="nav-link">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>Chart</span>
+                    </a>
+                </li>
+            {% endif %}  
+        </ul>
+        {% comment %} Authentication button {% endcomment %}
+        {% if user.is_authenticated %}
+            <a href="{% url 'logout' %}" class="logout-btn">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        {% else %}
+            <a href="{% url 'login' %}" class="logout-btn">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </a>
+        {% endif %}
+    </aside>
+    <div class="chart-container">
+        <div class="chart-wrapper">
+            <canvas id="diseaseChart"></canvas>
+        </div>
+        <div class="chart-wrapper">
+            <canvas id="genderChart"></canvas>
+        </div>
+        <div class="chart-wrapper">
+            <canvas id="natureChart"></canvas>
+        </div>
+    </div>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Disease Category Chart
+        const diseaseCtx = document.getElementById('diseaseChart').getContext('2d');
+        new Chart(diseaseCtx, {
+            type: 'pie',
+            data: {
+                labels: [
+                    {% for item in category_disease_data %}
+                        '{{ item.disease_category }}',
+                    {% endfor %}
+                ],
+                datasets: [{
+                    data: [
+                        {% for item in category_disease_data %}
+                            {{ item.count }},
+                        {% endfor %}
+                    ],
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.6)',
+                        'rgba(54, 162, 235, 0.6)',
+                        'rgba(255, 206, 86, 0.6)',
+                        'rgba(75, 192, 192, 0.6)',
+                        'rgba(153, 102, 255, 0.6)'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Disease Category Distribution'
+                    }
+                }
+            }
+        });
+
+        // Gender Distribution Chart
+        const genderCtx = document.getElementById('genderChart').getContext('2d');
+        
+        // Prepare data for gender chart
+        const categories = [...new Set([
+            {% for item in gender_disease_data %}
+                '{{ item.disease_category }}',
+            {% endfor %}
+        ])];
+
+        const maleData = categories.map(category => {
+            const match = [
+                {% for item in gender_disease_data %}
+                    {% if item.gender == 'male' %}
+                        { category: '{{ item.disease_category }}', count: {{ item.count }} },
+                    {% endif %}
+                {% endfor %}
+            ];
+            return match.find(m => m.category === category)?.count || 0;
+        });
+
+        const femaleData = categories.map(category => {
+            const match = [
+                {% for item in gender_disease_data %}
+                    {% if item.gender == 'female' %}
+                        { category: '{{ item.disease_category }}', count: {{ item.count }} },
+                    {% endif %}
+                {% endfor %}
+            ];
+            return match.find(m => m.category === category)?.count || 0;
+        });
+
+        new Chart(genderCtx, {
+            type: 'bar',
+            data: {
+                labels: categories,
+                datasets: [
+                    {
+                        label: 'Male',
+                        data: maleData,
+                        backgroundColor: 'rgba(54, 162, 235, 0.6)'
+                    },
+                    {
+                        label: 'Female',
+                        data: femaleData,
+                        backgroundColor: 'rgba(255, 99, 132, 0.6)'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Disease Distribution by Gender'
+                    }
+                },
+                scales: {
+                    x: { stacked: true },
+                    y: { stacked: true }
+                }
+            }
+        });
+
+        // Nature of Condition Chart
+        const natureCtx = document.getElementById('natureChart').getContext('2d');
+        new Chart(natureCtx, {
+            type: 'doughnut',
+            data: {
+                labels: [
+                    {% for item in nature_data %}
+                        '{{ item.nature }}',
+                    {% endfor %}
+                ],
+                datasets: [{
+                    data: [
+                        {% for item in nature_data %}
+                            {{ item.count }},
+                        {% endfor %}
+                    ],
+                    backgroundColor: [
+                        'rgba(75, 192, 192, 0.6)',
+                        'rgba(153, 102, 255, 0.6)',
+                        'rgba(255, 206, 86, 0.6)'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Patient Condition Nature'
+                    }
+                }
+            }
+        });
+    });
+    </script>
+</body>
+</html>

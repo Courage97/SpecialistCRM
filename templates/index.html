@@ -1,0 +1,144 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SpecialistCRM</title>
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="{% static 'script.js' %}" defer></script>
+</head>
+<body>
+    <aside class="sidebar" id="sidebar">
+        <div class="logo-container">
+            <img src="https://i.pinimg.com/736x/34/14/03/341403d15bcffea3bb9c9ab1424e8420.jpg" alt="Hospital Logo">
+            <span>Specialist</span>
+        </div>
+        {% comment %} Always visible item on the aside bar without authentication {% endcomment %}
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a href="{% url 'index' %}" class="nav-link">
+                    <i class="fas fa-home"></i>
+                    <span>Home</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'features' %}" class="nav-link">
+                    <i class="fas fa-cogs"></i>
+                    <span>Features</span>
+                </a>
+            </li>
+
+            {% if user.is_authenticated %}
+                <li class="nav-item">
+                    <a href="{% url 'dashboard' %}" class="nav-link">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'chart' %}" class="nav-link">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>Chart</span>
+                    </a>
+                </li>
+            {% endif %}  
+        </ul>
+        {% comment %} Authentication button {% endcomment %}
+        {% if user.is_authenticated %}
+            <a href="{% url 'logout' %}" class="logout-btn">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        {% else %}
+            <a href="{% url 'login' %}" class="logout-btn">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </a>
+        {% endif %}
+    </aside>
+    
+
+    <!-- Main Content -->
+    <main class="main-content" id="mainContent">
+        <header class="top-bar">
+            {%if user.is_authenticated%}
+            <div class="user-info">
+                <i class="fas fa-user"></i>
+                Welcome, Dr. {{user.username}}
+            </div>
+            {%else%}
+            <div class="user-info">
+                <i class="fas fa-user"></i>
+                Welcome, [user]
+            </div>
+            <div class="action-buttons">
+                <a href = "signup" class="btn-signup" id="openSignup">
+                    <i class="fas fa-user-plus"></i> Sign Up
+                </a>
+            </div>
+            {%endif%}
+        </header>
+
+        <div class="content">
+            <div class="card">
+                <h1 class="card-title">Specialist Diagnostics CRM</h1>
+                <p>Centralized patient database with demographic details.</p>
+            </div>
+
+            <!-- Patient Records Table -->
+            <div class="card">
+                <h2 class="card-title">Overview of Patient Record</h2>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Gender</th>
+                                <th>Category</th>
+                                <th>Nature</th>
+                                <!-- <th>Actions</th> -->
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>P001</td>
+                                <td>John Doe</td>
+                                <td>Male</td>
+                                <td>Diabetes</td>
+                                <td><span class="status-badge status-better">Getting Better</span></td>
+                                <td class="table-actions">
+                                    <!-- <button class="btn-icon edit"><i class="fas fa-edit"></i></button>
+                                    <button class="btn-icon delete"><i class="fas fa-trash"></i></button> -->
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>P002</td>
+                                <td>Jane Smith</td>
+                                <td>Female</td>
+                                <td>Hypertension</td>
+                                <td><span class="status-badge status-worsen">Worsen</span></td>
+                                <td class="table-actions">
+                                    <!-- <button class="btn-icon edit"><i class="fas fa-edit"></i></button>
+                                    <button class="btn-icon delete"><i class="fas fa-trash"></i></button> -->
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>P003</td>
+                                <td>Mike Johnson</td>
+                                <td>Male</td>
+                                <td>Asthma</td>
+                                <td><span class="status-badge status-no-change">No Improvement</span></td>
+                                <!-- <td class="table-actions">
+                                    <button class="btn-icon edit"><i class="fas fa-edit"></i></button>
+                                    <button class="btn-icon delete"><i class="fas fa-trash"></i></button>
+                                </td> -->
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

@@ -1,0 +1,119 @@
+{%load static%}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <aside class="sidebar" id="sidebar">
+        <div class="logo-container">
+            <img src="https://i.pinimg.com/736x/34/14/03/341403d15bcffea3bb9c9ab1424e8420.jpg" alt="Hospital Logo">
+            <span>Specialist</span>
+        </div>
+        {% comment %} Always visible item on the aside bar without authentication {% endcomment %}
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a href="{% url 'index' %}" class="nav-link">
+                    <i class="fas fa-home"></i>
+                    <span>Home</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'features' %}" class="nav-link">
+                    <i class="fas fa-cogs"></i>
+                    <span>Features</span>
+                </a>
+            </li>
+
+            {% if user.is_authenticated %}
+                <li class="nav-item">
+                    <a href="{% url 'dashboard' %}" class="nav-link">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'chart' %}" class="nav-link">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>Chart</span>
+                    </a>
+                </li>
+            {% endif %}  
+        </ul>
+        {% comment %} Authentication button {% endcomment %}
+        {% if user.is_authenticated %}
+            <a href="{% url 'logout' %}" class="logout-btn">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        {% else %}
+            <a href="{% url 'login' %}" class="logout-btn">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </a>
+        {% endif %}
+    </aside>
+    
+    <main class="main-content">
+        <header class="top-bar">
+            <div class="user-info">
+                <i class="fas fa-user"></i> Welcome, Dr. {{user.username}}
+            </div>
+            <div class="action-buttons">
+                <a href = "{% url 'register' %}" class="btn-add-patient">
+                    <i class="fas fa-user-plus"></i> Add Patient
+                </a>
+            </div>
+        </header>
+    
+        <div class="card">
+            <h2 class="card-title">Patient Records</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Gender</th>
+                            <th>Category</th>
+                            <th>Nature</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for patient in patients %}
+                        <tr>
+                            <td>{{ patient.patient_id }}</td>
+                            <td>{{ patient.name }}</td>
+                            <td>{{ patient.gender }}</td>
+                            <td>{{ patient.disease_category }}</td>
+                            <td>
+                                <span class="status-badge 
+                                    {% if patient.nature == 'better' %}status-better
+                                    {% elif patient.nature == 'improving' %}status-improving
+                                    {% else %}status-worsen{% endif %}">
+                                    {{ patient.nature|title }}
+                                </span>
+                            </td>
+                            <td class="table-actions">
+                                <a href="{% url 'read' patient.pk %}" class="btn-icon read"><i class="fas fa-readme"></i></a>
+                                <a href="{% url 'update' patient.pk %}" class="btn-icon edit"><i class="fas fa-edit"></i></a>
+                                <a href="{% url 'delete' patient.id %}" class="btn-icon delete"><i class="fas fa-trash"></i></a>
+                                
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6">No patients found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

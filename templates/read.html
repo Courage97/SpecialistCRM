@@ -1,0 +1,113 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HealthCheck CRM - Home</title>
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="{% static 'script.js' %}" defer></script>
+</head>
+<body>
+    <aside class="sidebar" id="sidebar">
+        <div class="logo-container">
+            <img src="https://i.pinimg.com/736x/34/14/03/341403d15bcffea3bb9c9ab1424e8420.jpg" alt="Hospital Logo">
+            <span>Specialist</span>
+        </div>
+        {% comment %} Always visible item on the aside bar without authentication {% endcomment %}
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a href="{% url 'index' %}" class="nav-link">
+                    <i class="fas fa-home"></i>
+                    <span>Home</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'features' %}" class="nav-link">
+                    <i class="fas fa-cogs"></i>
+                    <span>Features</span>
+                </a>
+            </li>
+
+            {% if user.is_authenticated %}
+                <li class="nav-item">
+                    <a href="{% url 'dashboard' %}" class="nav-link">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'chart' %}" class="nav-link">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>Chart</span>
+                    </a>
+                </li>
+            {% endif %}  
+        </ul>
+        {% comment %} Authentication button {% endcomment %}
+        {% if user.is_authenticated %}
+            <a href="{% url 'logout' %}" class="logout-btn">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        {% else %}
+            <a href="{% url 'login' %}" class="logout-btn">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </a>
+        {% endif %}
+    </aside>
+
+    <div class="container">
+        <h1 class="title">Patient Record</h1>
+        <div class="patient-details">
+            <div class="detail">
+                <label>Patient ID</label>
+                <span id="patientId">{{ patient.patient_id }}</span>
+            </div>
+            <div class="detail">
+                <label>Name</label>
+                <span id="name">{{ patient.name }}</span>
+            </div>
+            <div class="detail">
+                <label>Age</label>
+                <span id="age">{{ patient.age }}</span>
+            </div>
+            <div class="detail">
+                <label>Gender</label>
+                <span id="gender">{{ patient.gender }}</span>
+            </div>
+            <div class="detail">
+                <label>Phone</label>
+                <span id="phone">{{ patient.phone }}</span>
+            </div>
+            <div class="detail">
+                <label>Email</label>
+                <span id="email">{{ patient.email }}</span>
+            </div>
+            <div class="detail">
+                <label>Disease Category</label>
+                <span id="diseaseCategory">{{ patient.disease_category }}</span>
+            </div>
+            <div class="detail">
+                <label>Nature</label>
+                <span id="nature">{{ patient.nature }}</span>
+            </div>
+            <div class="detail">
+                <label>Address</label>
+                <span id="address">{{ patient.address }}</span>
+            </div>
+        </div>
+        <div class="title-actions">
+            <a href="{% url 'update' patient.id %}" class="action-link update-link">
+                <i class="fas fa-edit"></i>
+                <span>Edit Record</span>
+            </a>
+            <a href="{% url 'dashboard' %}" class="action-link cancel-link">
+                <i class="fas fa-arrow-left"></i>
+                <span>Back to List</span>
+            </a>
+        </div>
+    </div>
+    <script src="{% static 'script.js' %}"> </script>
+    </body>
+    </html>
